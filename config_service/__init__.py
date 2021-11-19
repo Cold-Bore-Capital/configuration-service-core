@@ -1,1 +1,1 @@
-from config_service.core import Core
+from config_service.config import Config, MissingEnviron, ErrorFlagTrue
