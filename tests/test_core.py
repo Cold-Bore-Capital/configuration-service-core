@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 
-from config_service import Config, MissingEnviron, ErrorFlagTrue
+from configservice import Config, MissingEnviron, ErrorFlagTrue
 
 
 class TestCore(TestCase):
