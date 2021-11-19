@@ -1,16 +1,4 @@
-config.py
-config_e2e.py
-admin_config.py
-# Don't include the run settings file. This avoids having to commit everytime a change is made.
-e2e_run_settings.py
 /venv/*
-e2e_test.py
-
-# Ignore everything under the root folder data
-/data/*
-/data_samples/*
-
-/tests/end_to_end_tests/db/*
 
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
