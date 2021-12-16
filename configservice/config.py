@@ -21,7 +21,7 @@ class Config:
                 test_response: Any = None,
                 default_value: Any = None,
                 data_type_convert: Union[str, None] = None,
-                legacy_key_name: str = None) -> Union[None, str]:
+                legacy_key_name: str = None) -> Union[None, str, int, list]:
         """
         Checks if an env value is set for the key. Optionally raises an error if value is not set.
 
