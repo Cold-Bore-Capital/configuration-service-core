@@ -35,7 +35,7 @@ A warning will be printed to the std output indicating that the user should upda
 In this method of implementation, the configuration service is inherited as a class. Env variables 
 are setup a properties of the class.
 
-    from config-service import Config
+    from configservice import Config
 
    
     class ConfigService(Config):
@@ -51,7 +51,7 @@ are setup a properties of the class.
 
 The package can be used directly to set a variable as well. 
 
-    from config-service import Config
+    from configservice import Config
 
     c = Config()
     api_key = c.get_env('API_KEY')
@@ -99,7 +99,7 @@ Test mode can be set by either passing in `test_mode` when instantiating the cla
 parameter `test_mode=True`. Then the `test_response` parameter can be passed in to override any env variable. For 
 example:
 
-    from config-service import Config
+    from configservice import Config
 
     c = Config(test_mode=True)
     api_key = c.get_env('API_KEY', test_response='ABC123')
