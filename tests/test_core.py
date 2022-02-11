@@ -95,3 +95,18 @@ class TestCore(TestCase):
         res = c.get_env('TEST_ME_X', data_type_convert='list_float')
         golden = [1.2, 2, 3.6, 4.6, 5]
         self.assertListEqual(golden, res)
+
+        # Test default value int
+
+        res = c.get_env('TEST_ME_NO', default_value='3', data_type_convert='int')
+        self.assertEqual(3, res)
+
+        # Test default value int
+        c._test_mode = True
+        res = c.get_env('TEST_ME_NO', test_response='2', default_value='3', data_type_convert='int')
+        self.assertEqual(3, res)
+
+        # Test default value int
+        c._test_mode = True
+        res = c.get_env('TEST_ME_NO', test_response='2', data_type_convert='int')
+        self.assertEqual(2, res)
