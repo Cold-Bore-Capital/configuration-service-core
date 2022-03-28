@@ -1,6 +1,8 @@
 import boto3
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv, find_dotenv
+import random
+import socket
 import json
 import os
 from typing import Union, Any
@@ -12,8 +14,7 @@ class Config:
                  secret_name: str = None,
                  aws_cache: bool = False,
                  region_name: str = 'us-east-2',
-                 test_mode: bool = False
-                 ):
+                 test_mode: bool = False):
         """
         Init Function.
 
@@ -74,7 +75,10 @@ class Config:
             env_value = self.secrets_cache.get(key_name)
         else:
             # Connect to AWS secrets manager through boto3.session.
-            session = boto3.session.Session(profile_name=self.profile_name)
+            aws_access_key_id = self.get_env('AWS_ACCESS_KEY_ID')
+            aws_secret_access_key = self.get_env('AWS_SECRET_ACCESS_KEY')
+            session = boto3.session.session(aws_access_key_id=aws_access_key_id,
+                                            aws_secret_access_key=aws_secret_access_key)
             client = session.client(
                 service_name='secretsmanager',
                 region_name=self.region_name
@@ -117,7 +121,10 @@ class Config:
 
         """
         # Connect to AWS secrets manager through boto3.session.
-        session = boto3.session.Session(profile_name=self.profile_name)
+        aws_access_key_id = self.get_env('AWS_ACCESS_KEY_ID')
+        aws_secret_access_key = self.get_env('AWS_SECRET_ACCESS_KEY')
+        session = boto3.session.session(aws_access_key_id=aws_access_key_id,
+                                        aws_secret_access_key=aws_secret_access_key)
         client = session.client(
             service_name='secretsmanager',
             region_name=self.region_name
@@ -128,7 +135,6 @@ class Config:
             get_secret_value_response = client.get_secret_value(SecretId=self.secret_name)
         except ClientError as e:
             raise e
-
 
         # Pull specific value for a given key_name.
         env_values = json.loads(get_secret_value_response['SecretString'])
@@ -252,6 +258,11 @@ class Config:
         elif port:
             return int(port)
         return 5400
+
+    @staticmethod
+    def is_port_in_use(port: int):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            return s.connect_ex(('localhost', port)) == 0
 
 
 class MissingEnviron(Exception):
