@@ -266,6 +266,28 @@ class Config:
 
         return value
 
+    @property
+    def ssh_local_bind_port(self) -> int:
+        """
+        Sets a local bind port.
+        In certain circumstances such as multi-processing, multiple SSH connections will need to be made at one time.
+        If the LOCAL_BIND_PORT value is set to random a random port number will be selected and validated as not in use.
+        Returns:
+            An integer to use as the SSH local bind port.
+        """
+        if self._ssh_local_bind_port is not None:
+            return self._ssh_local_bind_port
+
+        port = os.environ.get('LOCAL_BIND_PORT')
+        if port == 'random':
+            while 1 == 1:
+                rand_port = random.randint(5000, 50000)
+                if not self.is_port_in_use(rand_port):
+                    return rand_port
+        elif port:
+            return int(port)
+        return 5400
+
 
 class MissingEnviron(Exception):
     """Raised when a required environment variable is missing"""
