@@ -10,8 +10,6 @@ from typing import Union, Any
 
 class Config:
     def __init__(self,
-                 profile_name: str = None,
-                 secret_name: str = None,
                  aws_cache: bool = False,
                  region_name: str = 'us-east-2',
                  test_mode: bool = False):
@@ -22,8 +20,6 @@ class Config:
             region_name: Region where secrets are stored.
             test_mode: If set to true, config service will return mockup values instead of env variables.
         """
-        self.profile_name = profile_name
-        self.secret_name = secret_name
         self.aws_cache = aws_cache
         self.region_name = region_name
         self._test_mode = test_mode
@@ -77,16 +73,17 @@ class Config:
             # Connect to AWS secrets manager through boto3.session.
             aws_access_key_id = self.get_env('AWS_ACCESS_KEY_ID')
             aws_secret_access_key = self.get_env('AWS_SECRET_ACCESS_KEY')
-            session = boto3.session.session(aws_access_key_id=aws_access_key_id,
-                                            aws_secret_access_key=aws_secret_access_key)
+            profile_name = self.get_env('PROFILE_NAME')
+            session = boto3.session.Session(profile_name=profile_name)
             client = session.client(
                 service_name='secretsmanager',
                 region_name=self.region_name
             )
 
             # Pick which secret to use
+            secret_name = self.get_env('SECRET_NAME')
             try:
-                get_secret_value_response = client.get_secret_value(SecretId=self.secret_name)
+                get_secret_value_response = client.get_secret_value(SecretId=secret_name)
             except ClientError as e:
                 raise e
 
@@ -123,16 +120,17 @@ class Config:
         # Connect to AWS secrets manager through boto3.session.
         aws_access_key_id = self.get_env('AWS_ACCESS_KEY_ID')
         aws_secret_access_key = self.get_env('AWS_SECRET_ACCESS_KEY')
-        session = boto3.session.session(aws_access_key_id=aws_access_key_id,
-                                        aws_secret_access_key=aws_secret_access_key)
+        profile_name = self.get_env('PROFILE_NAME')
+        session = boto3.session.Session(profile_name=profile_name)
         client = session.client(
             service_name='secretsmanager',
             region_name=self.region_name
         )
 
         # Pick which secret to use
+        secret_name = os.environ.get('SECRET_NAME')
         try:
-            get_secret_value_response = client.get_secret_value(SecretId=self.secret_name)
+            get_secret_value_response = client.get_secret_value(SecretId=secret_name)
         except ClientError as e:
             raise e
 
