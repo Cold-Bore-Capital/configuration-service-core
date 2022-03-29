@@ -77,7 +77,7 @@ class Config:
             # Connect to AWS secrets manager through boto3.session.
             aws_access_key_id = self.get_env('AWS_ACCESS_KEY_ID')
             aws_secret_access_key = self.get_env('AWS_SECRET_ACCESS_KEY')
-            session = boto3.session.session(aws_access_key_id=aws_access_key_id,
+            session = boto3.session.Session(aws_access_key_id=aws_access_key_id,
                                             aws_secret_access_key=aws_secret_access_key)
             client = session.client(
                 service_name='secretsmanager',
@@ -85,8 +85,9 @@ class Config:
             )
 
             # Pick which secret to use
+            secret_name = self.get_env('SECRET_NAME')
             try:
-                get_secret_value_response = client.get_secret_value(SecretId=self.secret_name)
+                get_secret_value_response = client.get_secret_value(SecretId=secret_name)
             except ClientError as e:
                 raise e
 
@@ -123,7 +124,7 @@ class Config:
         # Connect to AWS secrets manager through boto3.session.
         aws_access_key_id = self.get_env('AWS_ACCESS_KEY_ID')
         aws_secret_access_key = self.get_env('AWS_SECRET_ACCESS_KEY')
-        session = boto3.session.session(aws_access_key_id=aws_access_key_id,
+        session = boto3.session.Session(aws_access_key_id=aws_access_key_id,
                                         aws_secret_access_key=aws_secret_access_key)
         client = session.client(
             service_name='secretsmanager',
@@ -131,8 +132,9 @@ class Config:
         )
 
         # Pick which secret to use
+        secret_name = self.get_env('SECRET_NAME')
         try:
-            get_secret_value_response = client.get_secret_value(SecretId=self.secret_name)
+            get_secret_value_response = client.get_secret_value(SecretId=secret_name)
         except ClientError as e:
             raise e
 
