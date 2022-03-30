@@ -1,16 +1,15 @@
 import boto3
 from botocore.exceptions import ClientError
-from dotenv import load_dotenv, find_dotenv
 import random
 import socket
 import json
 import os
-from typing import Union, Any
+from typing import Union, Any, List
 
 
 class Config:
     def __init__(self,
-                 secret_name: str = None,
+                 secret_name: Any[str, List] = None,
                  aws_cache: bool = True,
                  region_name: str = 'us-east-2',
                  test_mode: bool = False):
@@ -25,6 +24,7 @@ class Config:
         self.aws_cache = aws_cache
         self.region_name = region_name
         self._test_mode = test_mode
+        self.secrets_cache = dict()
 
         if self.aws_cache:
             self.get_all_secrets()
@@ -40,7 +40,6 @@ class Config:
         Checks if an env value is set for the key. Optionally raises an error if value is not set.
 
         Args:
-            secret_name: Secret name used to encapsulate a set of credentials on AWS Secrets Manager.
             key_name: The name of the key within AWS Secrets Manager.
 
             error_flag: If set to True and the following conditions exist, an error will be raised.
@@ -113,7 +112,7 @@ class Config:
         Checks if an env value is set for the key. Optionally raises an error if value is not set.
 
         Args:
-            secret_name: The name of the secret within AWS Secrets Manager.
+            self.secret_name: The name of the secret within AWS Secrets Manager.
 
         Returns:
             The value or None if the value is empty.
@@ -127,15 +126,24 @@ class Config:
         )
 
         # Pick which secret to use
-        secret_name = self.get_env('SECRET_NAME')
-        try:
-            get_secret_value_response = client.get_secret_value(SecretId=secret_name)
-        except ClientError as e:
-            raise e
+        if isinstance(self.secret_name, list):
+            for i in self.secret_name:
+                try:
+                    get_secret_value_response = client.get_secret_value(SecretId=i)
+                except ClientError as e:
+                    raise e
+                # Pull specific value for a given key_name.
+                env_values = json.loads(get_secret_value_response['SecretString'])
+                self.secrets_cache.update(env_values)
+        else:
+            try:
+                get_secret_value_response = client.get_secret_value(SecretId=self.secret_name)
+            except ClientError as e:
+                raise e
 
-        # Pull specific value for a given key_name.
-        env_values = json.loads(get_secret_value_response['SecretString'])
-        self.secrets_cache = env_values
+            # Pull specific value for a given key_name.
+            env_values = json.loads(get_secret_value_response['SecretString'])
+            self.secrets_cache = env_values
 
     def get_env(self,
                 key_name: str,
