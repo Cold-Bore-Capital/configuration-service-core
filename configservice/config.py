@@ -12,7 +12,7 @@ class Config:
     def __init__(self,
                  profile_name: str = None,
                  secret_name: str = None,
-                 aws_cache: bool = False,
+                 aws_cache: bool = True,
                  region_name: str = 'us-east-2',
                  test_mode: bool = False):
         """
