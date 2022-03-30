@@ -9,7 +9,7 @@ from typing import Union, Any, List
 
 class Config:
     def __init__(self,
-                 secret_name: Any[str, List] = None,
+                 secret_name: Union[str, List] = None,
                  aws_cache: bool = True,
                  region_name: str = 'us-east-2',
                  test_mode: bool = False):
