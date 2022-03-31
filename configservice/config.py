@@ -72,10 +72,7 @@ class Config:
             env_value = self.secrets_cache.get(key_name)
         else:
             # Connect to AWS secrets manager through boto3.session.
-            aws_access_key_id = self.get_env('AWS_ACCESS_KEY_ID')
-            aws_secret_access_key = self.get_env('AWS_SECRET_ACCESS_KEY')
-            session = boto3.session.Session(aws_access_key_id=aws_access_key_id,
-                                            aws_secret_access_key=aws_secret_access_key)
+            session = boto3.session.Session(profile_name='default')
             client = session.client(
                 service_name='secretsmanager',
                 region_name=self.region_name
@@ -119,7 +116,7 @@ class Config:
 
         """
         # Connect to AWS secrets manager through boto3.session.
-        session = boto3.session.Session()
+        session = boto3.session.Session(profile_name='default')
         client = session.client(
             service_name='secretsmanager',
             region_name=self.region_name
