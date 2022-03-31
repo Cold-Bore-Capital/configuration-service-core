@@ -9,6 +9,7 @@ from typing import Union, Any, List
 
 class Config:
     def __init__(self,
+                 profile_name=None,
                  secret_name: Union[str, List] = None,
                  aws_cache: bool = True,
                  region_name: str = 'us-east-2',
@@ -20,6 +21,7 @@ class Config:
             region_name: Region where secrets are stored.
             test_mode: If set to true, config service will return mockup values instead of env variables.
         """
+        self.profile_name = profile_name
         self.secret_name = secret_name
         self.aws_cache = aws_cache
         self.region_name = region_name
@@ -72,7 +74,7 @@ class Config:
             env_value = self.secrets_cache.get(key_name)
         else:
             # Connect to AWS secrets manager through boto3.session.
-            session = boto3.session.Session(profile_name='default')
+            session = boto3.session.Session(profile_name=self.profile_name)
             client = session.client(
                 service_name='secretsmanager',
                 region_name=self.region_name
@@ -116,7 +118,7 @@ class Config:
 
         """
         # Connect to AWS secrets manager through boto3.session.
-        session = boto3.session.Session(profile_name='default')
+        session = boto3.session.Session(profile_name=self.profile_name)
         client = session.client(
             service_name='secretsmanager',
             region_name=self.region_name
