@@ -1,10 +1,11 @@
-import boto3
-from botocore.exceptions import ClientError
-import random
-import socket
 import json
 import os
+import random
+import socket
 from typing import Union, Any, List
+
+import boto3
+from botocore.exceptions import ClientError
 
 
 class Config:
@@ -80,8 +81,10 @@ class Config:
                 region_name=self.region_name
             )
 
-            # Pick which secret to use
-            secret_name = self.get_env('SECRET_NAME')
+            # Pick which secret to use. If secret_name not set during init, then look for env file path.
+            secret_name = self.secret_name if self.secret_name is not None else self.get_env('SECRET_NAME',
+                                                                                             error_flag=True)
+
             try:
                 get_secret_value_response = client.get_secret_value(SecretId=secret_name)
             except ClientError as e:
