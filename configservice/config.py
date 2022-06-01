@@ -36,7 +36,7 @@ class Config:
         if self.aws_cache:
             self.get_all_secrets()
 
-    def get_secret(self, key_name, error_flag, test_response, default_value, data_type_convert, legacy_key_name):
+    def get_secret(self, key_name, error_flag=None, test_response=None, default_value=None, data_type_convert=None, legacy_key_name=None):
         if not self.aws_secrets:
             return self.get_env(key_name, error_flag, test_response, default_value, data_type_convert, legacy_key_name)
         else:
