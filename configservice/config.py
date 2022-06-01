@@ -10,8 +10,9 @@ class Config:
     def __init__(self,
                  profile_name: str = None,
                  secret_name: str = None,
-                 aws_cache: bool = False,
-                 region_name: str = 'us-east-2',
+                 aws_cache: bool = True,
+                 aws_secrets: bool = False,
+                 region_name: str = 'us-east-1',
                  test_mode: bool = False
                  ):
         """
@@ -24,6 +25,7 @@ class Config:
         self.profile_name = profile_name
         self.secret_name = secret_name
         self.aws_cache = aws_cache
+        self.aws_secrets = aws_secrets
         self.region_name = region_name
         self._test_mode = test_mode
 
@@ -31,7 +33,7 @@ class Config:
             self.get_all_secrets()
 
     def get_secret(self, key_name, error_flag, test_response, default_value, data_type_convert, legacy_key_name):
-        if self.get_env(key_name, error_flag, test_response, default_value, data_type_convert, legacy_key_name):
+        if not self.aws_secrets:
             return self.get_env(key_name, error_flag, test_response, default_value, data_type_convert, legacy_key_name)
         else:
             return self.get_aws_secret(key_name, error_flag, test_response, default_value, data_type_convert,
