@@ -30,13 +30,20 @@ class Config:
         if self.aws_cache:
             self.get_all_secrets()
 
-    def get_secret(self,
-                   key_name: str = None,
-                   error_flag: bool = None,
-                   test_response: Any = None,
-                   default_value: Any = None,
-                   data_type_convert: Union[str, None] = None,
-                   legacy_key_name: str = None) -> Union[None, str, int, list]:
+    def get_secret(self, key_name, error_flag, test_response, default_value, data_type_convert, legacy_key_name):
+        if self.get_env(key_name, error_flag, test_response, default_value, data_type_convert, legacy_key_name):
+            return self.get_env(key_name, error_flag, test_response, default_value, data_type_convert, legacy_key_name)
+        else:
+            return self.get_aws_secret(key_name, error_flag, test_response, default_value, data_type_convert,
+                                       legacy_key_name)
+
+    def get_aws_secret(self,
+                       key_name: str = None,
+                       error_flag: bool = None,
+                       test_response: Any = None,
+                       default_value: Any = None,
+                       data_type_convert: Union[str, None] = None,
+                       legacy_key_name: str = None) -> Union[None, str, int, list]:
         """
         Checks if an env value is set for the key. Optionally raises an error if value is not set.
 
