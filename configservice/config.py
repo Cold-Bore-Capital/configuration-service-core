@@ -175,6 +175,7 @@ class Config:
             The value or None if the value is empty.
 
         """
+        load_dotenv(find_dotenv())
         # If in test mode, return the test response. A default value will override this.
         if self._test_mode and not default_value:
             return self._convert_value(test_response, data_type_convert)
