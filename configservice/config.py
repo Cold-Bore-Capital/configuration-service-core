@@ -13,7 +13,6 @@ class Config:
     def __init__(self,
                  profile_name: str = None,
                  secret_name: str = None,
-                 aws_cache: bool = True,
                  aws_secrets: bool = False,
                  region_name: str = 'us-east-1',
                  test_mode: bool = False
@@ -27,13 +26,12 @@ class Config:
         """
         self.profile_name = profile_name
         self.secret_name = secret_name
-        self.aws_cache = aws_cache
         self.aws_secrets = aws_secrets
         self.region_name = region_name
         self._test_mode = test_mode
         self.secrets_cache = dict()
 
-        if self.aws_cache:
+        if self.aws_secrets:
             self.get_all_secrets()
 
     def get_secret(self, key_name, error_flag=None, test_response=None, default_value=None, data_type_convert=None, legacy_key_name=None):
