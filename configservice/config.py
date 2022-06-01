@@ -10,11 +10,13 @@ from botocore.exceptions import ClientError
 
 class Config:
     def __init__(self,
-                 profile_name=None,
-                 secret_name: Union[str, List] = None,
+                 profile_name: str = None,
+                 secret_name: str = None,
                  aws_cache: bool = True,
-                 region_name: str = 'us-east-2',
-                 test_mode: bool = False):
+                 aws_secrets: bool = False,
+                 region_name: str = 'us-east-1',
+                 test_mode: bool = False
+                 ):
         """
         Init Function.
 
@@ -25,6 +27,7 @@ class Config:
         self.profile_name = profile_name
         self.secret_name = secret_name
         self.aws_cache = aws_cache
+        self.aws_secrets = aws_secrets
         self.region_name = region_name
         self._test_mode = test_mode
         self.secrets_cache = dict()
@@ -32,13 +35,20 @@ class Config:
         if self.aws_cache:
             self.get_all_secrets()
 
-    def get_secret(self,
-                   key_name: str = None,
-                   error_flag: bool = None,
-                   test_response: Any = None,
-                   default_value: Any = None,
-                   data_type_convert: Union[str, None] = None,
-                   legacy_key_name: str = None) -> Union[None, str, int, list]:
+    def get_secret(self, key_name, error_flag, test_response, default_value, data_type_convert, legacy_key_name):
+        if not self.aws_secrets:
+            return self.get_env(key_name, error_flag, test_response, default_value, data_type_convert, legacy_key_name)
+        else:
+            return self.get_aws_secret(key_name, error_flag, test_response, default_value, data_type_convert,
+                                       legacy_key_name)
+
+    def get_aws_secret(self,
+                       key_name: str = None,
+                       error_flag: bool = None,
+                       test_response: Any = None,
+                       default_value: Any = None,
+                       data_type_convert: Union[str, None] = None,
+                       legacy_key_name: str = None) -> Union[None, str, int, list]:
         """
         Checks if an env value is set for the key. Optionally raises an error if value is not set.
 
@@ -181,6 +191,7 @@ class Config:
             The value or None if the value is empty.
 
         """
+        load_dotenv(find_dotenv())
         # If in test mode, return the test response. A default value will override this.
         if self._test_mode and not default_value:
             return self._convert_value(test_response, data_type_convert)
