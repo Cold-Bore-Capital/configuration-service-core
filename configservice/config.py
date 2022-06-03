@@ -80,7 +80,7 @@ class Config:
             return self._convert_value(test_response, data_type_convert)
 
         # create logic to determine if cache has been set or reach out to AWS
-        if self.aws_cache:
+        if self.aws_secrets:
             env_value = self.secrets_cache.get(key_name)
         else:
             # Connect to AWS secrets manager through boto3.session.
