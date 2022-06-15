@@ -24,18 +24,18 @@ class Config:
             region_name: Region where secrets are stored.
             test_mode: If set to true, config service will return mockup values instead of env variables.
         """
-        self.profile_name = profile_name
-        self.secret_name = secret_name
-        self.aws_secrets = aws_secrets
-        self.region_name = region_name
+        self._profile_name = profile_name
+        self._secret_name = secret_name
+        self._aws_secrets = aws_secrets
+        self._region_name = region_name
         self._test_mode = test_mode
-        self.secrets_cache = dict()
+        self._secrets_cache = dict()
 
-        if self.aws_secrets:
+        if self._aws_secrets:
             self.get_all_secrets()
 
     def get_secret(self, key_name, error_flag=None, test_response=None, default_value=None, data_type_convert=None, legacy_key_name=None):
-        if not self.aws_secrets:
+        if not self._aws_secrets:
             return self.get_env(key_name, error_flag, test_response, default_value, data_type_convert, legacy_key_name)
         else:
             return self.get_aws_secret(key_name, error_flag, test_response, default_value, data_type_convert,
@@ -80,22 +80,22 @@ class Config:
             return self._convert_value(test_response, data_type_convert)
 
         # create logic to determine if cache has been set or reach out to AWS
-        if self.aws_secrets:
-            env_value = self.secrets_cache.get(key_name)
+        if self._aws_secrets:
+            env_value = self._secrets_cache.get(key_name)
         else:
             # Connect to AWS secrets manager through boto3.session.
-            if self.profile_name:
-                session = boto3.session.Session(profile_name=self.profile_name)
+            if self._profile_name:
+                session = boto3.session.Session(profile_name=self._profile_name)
             else:
                 session = boto3.session.Session()
             client = session.client(
                 service_name='secretsmanager',
-                region_name=self.region_name
+                region_name=self._region_name
             )
 
             # Pick which secret to use. If secret_name not set during init, then look for env file path.
-            secret_name = self.secret_name if self.secret_name is not None else self.get_env('SECRET_NAME',
-                                                                                             error_flag=True)
+            secret_name = self._secret_name if self._secret_name is not None else self.get_env('SECRET_NAME',
+                                                                                               error_flag=True)
 
             try:
                 get_secret_value_response = client.get_secret_value(SecretId=secret_name)
@@ -133,34 +133,34 @@ class Config:
 
         """
         # Connect to AWS secrets manager through boto3.session.
-        if self.profile_name:
-            session = boto3.session.Session(profile_name=self.profile_name)
+        if self._profile_name:
+            session = boto3.session.Session(profile_name=self._profile_name)
         else:
             session = boto3.session.Session()
         client = session.client(
             service_name='secretsmanager',
-            region_name=self.region_name
+            region_name=self._region_name
         )
 
         # Pick which secret to use
-        if isinstance(self.secret_name, list):
-            for i in self.secret_name:
+        if isinstance(self._secret_name, list):
+            for i in self._secret_name:
                 try:
                     get_secret_value_response = client.get_secret_value(SecretId=i)
                 except ClientError as e:
                     raise e
                 # Pull specific value for a given key_name.
                 env_values = json.loads(get_secret_value_response['SecretString'])
-                self.secrets_cache.update(env_values)
+                self._secrets_cache.update(env_values)
         else:
             try:
-                get_secret_value_response = client.get_secret_value(SecretId=self.secret_name)
+                get_secret_value_response = client.get_secret_value(SecretId=self._secret_name)
             except ClientError as e:
                 raise e
 
             # Pull specific value for a given key_name.
             env_values = json.loads(get_secret_value_response['SecretString'])
-            self.secrets_cache = env_values
+            self._secrets_cache = env_values
 
     def get_env(self,
                 key_name: str,
