@@ -3,7 +3,7 @@ import os
 import random
 import socket
 from typing import Union, Any, List
-from dotenv import load_dotenv, find_dotenv
+# from dotenv import load_dotenv, find_dotenv
 
 import boto3
 from botocore.exceptions import ClientError
@@ -196,7 +196,7 @@ class Config:
             The value or None if the value is empty.
 
         """
-        load_dotenv(find_dotenv())
+        # load_dotenv(find_dotenv())
         # If in test mode, return the test response. A default value will override this.
         if self._test_mode and not default_value:
             return self._convert_value(test_response, data_type_convert)
